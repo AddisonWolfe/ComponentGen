@@ -1,12 +1,8 @@
 from lexer.lexer import lex
-from lexer.lexer import lex_hierarchical  # your T-F-C post-processor
 
 examples = [
-    "make a large red rounded button with shadow",
-    "create a green input with disabled property",
-    "blue card outlined small",
-    "just a red",
-    "small button shadow blue rounded"
+    "make a large red rounded button with shadow and a blue navbar",
+    "make a input field with black text"
 ]
 
 for ex in examples:
@@ -17,5 +13,5 @@ for ex in examples:
     print("Tokens:", tokens)
     
     # Step 2: Apply T-F-C hierarchy
-    component = lex_hierarchical(ex)
-    print("Hierarchical Component:", component)
+    #component = lex_hierarchical(ex)
+   # print("Hierarchical Component:", component)

@@ -1,69 +1,74 @@
 import re
 
-# -------------------------------
-# 1. Define token regexes
-# -------------------------------
-TOKEN_SPEC = {
-    "TYPE": r"\b(button|card|input)\b",
-    "PROPERTY": r"\b(rounded|shadow|disabled|outlined|small|large|medium)\b",
-    "COLOR": r"\b(red|blue|green|black|white)\b"
-}
+class Component:
+    def __init__(self, ctype, modifiers=None):
+        self.ctype = ctype
+        self.modifiers = modifiers if modifiers else {"COLOR": None, "PROPERTIES": []}
 
-# Compile for efficiency
-TOKENS = {name: re.compile(pattern, re.IGNORECASE)
-          for name, pattern in TOKEN_SPEC.items()}
+    def add_modifier(self, kind, value):
+        if kind == "PROPERTY":
+            self.modifiers["PROPERTIES"].append(value)
+        else:
+            self.modifiers[kind] = value
+
+    def __str__(self):
+        color = self.modifiers.get("COLOR")
+        props = self.modifiers.get("PROPERTIES", [])
+        props_str = ", ".join(props) if props else "None"
+        return f"Component(type={self.ctype}, COLOR={color}, PROPERTIES=[{props_str}])"
+
+# -------------------------------
+# 1. Define token regexe
+# -------------------------------
+token_regex = re.compile(
+    r"(?P<TYPE>\b(button|card|input|navbar)\b)|"
+    r"(?P<PROPERTY>\b(text|rounded|shadow|disabled|outline|large|small|medium)\b)|"
+    r"(?P<COLOR>\b(red|blue|green|black|white)\b)|"
+    r"(?P<PREP>\b(about|above|across|after|against|along|among|around|at|before|behind|below|beneath|beside|between|beyond|by|despite|down|during|except|for|from|in|inside|into|like|near|of|off|on|onto|out|outside|over|past|since|through|throughout|to|toward|under|underneath|until|up|upon|with|within|without)\b)|"
+    r"(?P<CONJ>\b(and|or|but|nor|for|yet|so)\b)|"
+    r"(?P<A>\b(a)\b)"
+)   #use 1 regex to maintain input order when identifying tokens
 
 
 # -------------------------------
 # 2. Basic lexer function
 # -------------------------------
+#returns a list of tuples formatted as ['('TYPE', 'VALUE')']
 def lex(text: str):
-    """Return list of (TOKEN_TYPE, value) tuples."""
     tokens = []
-    for name, regex in TOKENS.items():
-        for match in regex.finditer(text):
-            tokens.append((name, match.group()))
+    for match in token_regex.finditer(text):
+            tokens.append((match.lastgroup, match.group()))
     return tokens
 
 
-# -------------------------------
-# 3. Hierarchical lexer (T-F-C)
-# -------------------------------
-def lex_hierarchical(text: str):
-    """Return a dict with TYPE, PROPERTIES, COLOR in hierarchical order."""
-    tokens = lex(text)
-    current = {
-        "TYPE": None,
-        "PROPERTIES": [],
-        "COLOR": None
-    }
+def group_lex(tokens):
+    components = []
+    pending_modifiers = []
+    new_comp = None
+    for token in tokens:
+        if token[0] == "TYPE":
+            if new_comp:
+                components.append(new_comp)
+            new_comp = Component(token[1])
+            if pending_modifiers:
+                add_modifiers(pending_modifiers,new_comp)
+                pending_modifiers.clear()
 
-    i = 0
-    while i < len(tokens):
-        token_type, value = tokens[i]
+        elif token[0] == "PROPERTY":
+            pending_modifiers.append(token)
+        
+        elif token[0] == "CONJ":
+            if(pending_modifiers and new_comp):
+                new_comp = add_modifiers(pending_modifiers,new_comp)
+            pending_modifiers.clear()
+    if new_comp:
+        if pending_modifiers:
+            add_modifiers(pending_modifiers,new_comp)
+        components.append(new_comp)
+    return components
+    
 
-        if token_type == "TYPE":
-            current["TYPE"] = value
-            i += 1
-            # lookahead for PROPERTY + COLOR pairs
-            while i + 1 < len(tokens):
-                t1, v1 = tokens[i]
-                t2, v2 = tokens[i + 1]
-                if t1 == "PROPERTY" and t2 == "COLOR":
-                    current["PROPERTIES"].append(v1)
-                    current["COLOR"] = v2
-                    i += 2
-                else:
-                    break
-        elif token_type == "COLOR" and current["TYPE"] is None:
-            # standalone color without type
-            current["COLOR"] = value
-            i += 1
-        elif token_type == "PROPERTY":
-            # property without TYPE or COLOR, optional to include
-            current["PROPERTIES"].append(value)
-            i += 1
-        else:
-            i += 1
-
-    return current
+def add_modifiers(mods, comp: Component):
+    for mod in mods:
+        comp.add_modifier(mod[0],mod[1])
+    return comp
