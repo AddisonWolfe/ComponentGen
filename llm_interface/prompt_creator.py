@@ -8,8 +8,9 @@ def create_prompt(text: str):
     components = group_lex(tokens)
     prompt = PROMPT_BASE
     for comp in components:
-        prompt += str(comp) + "\n"
+        # Turn Component(...) into human-readable instructions for code generation
+        props = ", ".join(comp.modifiers.get("PROPERTIES", [])) if comp.modifiers.get("PROPERTIES") else "None"
+        color = comp.modifiers.get("COLOR", "None")
+        prompt += f"A {color} {comp.ctype} with properties: {props}\n"
     return prompt
-    
-        
 
