@@ -10,6 +10,6 @@ def create_prompt(text: str):
     tokens = lex(text)
     components = group_lex(tokens)
     prompt = PROMPT_BASE
-    prompt += "Red button with black text \"Sign Up\""
+    prompt += "COMPONENT: Red button with black text \"Sign Up\""
     return prompt
 
