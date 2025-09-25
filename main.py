@@ -7,14 +7,10 @@ def main():
 
     text = "a red button with blue text"
     prompt = prompt = (
-"""You are a helpful assistant that writes React JSX code.
-You should ONLY return code, with proper props and styles.
-Do not describe anything in words.
-Do not generate components that are not listed.
+"""Generate React JSX code for the following components. Only output code, with proper props and styles. Do NOT describe the components in words. Only generate code for the components listed below:
 
-Generate React JSX code for the following components:
-COMPONENT: Red button with black text 'Sign Up'
-COMPONENT: Green button with white text 'Login'"""
+- Red button with black text 'Sign Up'
+- Green button with white text 'Login'"""
     )
 
     print("Prompt:")
