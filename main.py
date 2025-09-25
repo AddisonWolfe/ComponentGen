@@ -7,18 +7,14 @@ def main():
 
     text = "a red button with blue text"
     prompt = prompt = (
-        "<SYSTEM>\n"
-        "You are a helpful assistant that writes React JSX code.\n"
-        "You should ONLY return code, with proper props and styles.\n"
-        "Do not describe anything in words.\n"
-        "Do not generate components that are not listed.\n"
-        "</SYSTEM>\n"
-        "<USER>\n"
-        "Generate React JSX code for the following components:\n"
-        "COMPONENT: Red button with black text 'Sign Up'\n"
-        "COMPONENT: Green button with white text 'Login'\n"
-        "</USER>\n"
-        "<ASSISTANT>\n"
+"""You are a helpful assistant that writes React JSX code.
+You should ONLY return code, with proper props and styles.
+Do not describe anything in words.
+Do not generate components that are not listed.
+
+Generate React JSX code for the following components:
+COMPONENT: Red button with black text 'Sign Up'
+COMPONENT: Green button with white text 'Login'"""
     )
 
     print("Prompt:")
